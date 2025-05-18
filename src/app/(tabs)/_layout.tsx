@@ -2,10 +2,27 @@ import { Tabs } from 'expo-router';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { Easing } from 'react-native';
 
 export default function TabLayout() {
     return (
-        <Tabs>
+        <Tabs screenOptions={{
+            transitionSpec: {
+                animation: 'timing',
+                config: {
+                    duration: 150,
+                    easing: Easing.inOut(Easing.ease),
+                },
+            },
+            sceneStyleInterpolator: ({ current }) => ({
+                sceneStyle: {
+                    opacity: current.progress.interpolate({
+                        inputRange: [-1, 0, 1],
+                        outputRange: [0, 1, 0],
+                    }),
+                },
+            }),
+        }}>
             <Tabs.Screen
                 name="index"
                 options={{
