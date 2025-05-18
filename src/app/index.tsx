@@ -86,17 +86,14 @@ export default function Page() {
         containerStyle={{ gap: 5, marginTop: 10 }}
         onPress={onPressPagination}
       />
-      {/* <View style={styles.pagination}>
-        {data.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.paginationDot,
-              { opacity: activeIndex === index ? 1 : 0.5 }
-            ]}
-          />
-        ))}
-      </View> */}
+      <View style={styles.logoContainer}>
+        <Image
+          source={require('../../assets/Logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.appName}>Your Healer</Text>
+      </View>
       <TouchableOpacity
         style={[styles.button, { marginBottom: bottom + 20 }]}
         onPress={() => router.push('/auth/sign-in')}
@@ -157,6 +154,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#2563eb',
     margin: 5,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: 10,
+  },
+  appName: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 24,
   },
   button: {
     backgroundColor: '#1e293b',
