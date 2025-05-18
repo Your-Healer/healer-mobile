@@ -1,95 +1,173 @@
-import { Link } from "expo-router";
-import React from "react";
-import { Text, View } from "react-native";
+import React, { useState, useRef } from "react";
+import { Text, View, Image, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Carousel, { ICarouselInstance, Pagination } from 'react-native-reanimated-carousel';
+import { router } from "expo-router";
+import { useSharedValue } from "react-native-reanimated";
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function Page() {
-  return (
-    <View className="flex flex-1">
-      <Header />
-      <Content />
-      <Footer />
-    </View>
-  );
-}
+  const { top, bottom } = useSafeAreaInsets();
 
-function Content() {
-  return (
-    <View className="flex-1">
-      <View className="py-12 md:py-24 lg:py-32 xl:py-48">
-        <View className="px-4 md:px-6">
-          <View className="flex flex-col items-center gap-4 text-center">
-            <Text
-              role="heading"
-              className="text-3xl text-center native:text-5xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl"
-            >
-              Welcome to Project ACME
-            </Text>
-            <Text className="mx-auto max-w-[700px] text-lg text-center text-gray-500 md:text-xl dark:text-gray-400">
-              Discover and collaborate on acme. Explore our services now.
-            </Text>
+  const ref = React.useRef<ICarouselInstance>(null);
+  const progress = useSharedValue<number>(0);
 
-            <View className="gap-4">
-              <Link
-                suppressHighlighting
-                className="flex h-9 items-center justify-center overflow-hidden rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 web:shadow ios:shadow transition-colors hover:bg-gray-900/90 active:bg-gray-400/90 web:focus-visible:outline-none web:focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-                href="/"
-              >
-                Explore
-              </Link>
-            </View>
-          </View>
+  const onPressPagination = (index: number) => {
+    ref.current?.scrollTo({
+      count: index - progress.value,
+      animated: true,
+    });
+  };
+
+  const data = [
+    {
+      id: 1,
+      image: require('../../assets/welcome_1.jpg'),
+      title: 'Welcome to',
+      subtitle: 'Your Healer Application',
+      description: "Here's a good place for a brief overview of the app or it's key features."
+    },
+    {
+      id: 2,
+      image: require('../../assets/welcome_2.jpg'),
+      title: 'Book Appointments',
+      subtitle: 'With Top Doctors',
+      description: "Schedule appointments with qualified healthcare professionals with just a few taps."
+    },
+    {
+      id: 3,
+      image: require('../../assets/welcome_1.jpg'),
+      title: 'Online Consultation',
+      subtitle: 'Anytime, Anywhere',
+      description: "Get medical advice from the comfort of your home through secure video consultations."
+    },
+  ];
+
+  const renderItem = ({ item, index }) => {
+    return (
+      <View style={styles.slide}>
+        <Image
+          source={item.image}
+          style={styles.image}
+          resizeMode="cover"
+        />
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.subtitle}>{item.subtitle}</Text>
+          <Text style={styles.description}>{item.description}</Text>
         </View>
       </View>
+    );
+  };
+
+  return (
+    <View style={[styles.container, { paddingTop: top }]}>
+      <Carousel
+        width={screenWidth}
+        height={screenWidth * 1.6}
+        data={data}
+        renderItem={renderItem}
+        onProgressChange={progress}
+        mode="parallax"
+        modeConfig={{
+          parallaxScrollingScale: 0.9,
+          parallaxScrollingOffset: 50,
+        }}
+        autoPlay={true}
+        autoPlayInterval={3000}
+        scrollAnimationDuration={750}
+        loop={true}
+      />
+      <Pagination.Basic
+        progress={progress}
+        data={data}
+        dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
+        containerStyle={{ gap: 5, marginTop: 10 }}
+        onPress={onPressPagination}
+      />
+      {/* <View style={styles.pagination}>
+        {data.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.paginationDot,
+              { opacity: activeIndex === index ? 1 : 0.5 }
+            ]}
+          />
+        ))}
+      </View> */}
+      <TouchableOpacity
+        style={[styles.button, { marginBottom: bottom + 20 }]}
+        onPress={() => router.push('/auth/sign-in')}
+      >
+        <Text style={styles.buttonText}>Get started</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-function Header() {
-  const { top } = useSafeAreaInsets();
-  return (
-    <View style={{ paddingTop: top }}>
-      <View className="px-4 lg:px-6 h-14 flex items-center flex-row justify-between ">
-        <Link className="font-bold flex-1 items-center justify-center" href="/">
-          ACME
-        </Link>
-        <View className="flex flex-row gap-4 sm:gap-6">
-          <Link
-            className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
-          >
-            About
-          </Link>
-          <Link
-            className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
-          >
-            Product
-          </Link>
-          <Link
-            className="text-md font-medium hover:underline web:underline-offset-4"
-            href="/"
-          >
-            Pricing
-          </Link>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function Footer() {
-  const { bottom } = useSafeAreaInsets();
-  return (
-    <View
-      className="flex shrink-0 bg-gray-100 native:hidden"
-      style={{ paddingBottom: bottom }}
-    >
-      <View className="py-6 flex-1 items-start px-4 md:px-6 ">
-        <Text className={"text-center text-gray-700"}>
-          © {new Date().getFullYear()} Me
-        </Text>
-      </View>
-    </View>
-  );
-}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'space-between',
+  },
+  slide: {
+    flex: 1,
+    alignItems: 'center',
+    paddingBottom: 20,
+  },
+  image: {
+    width: screenWidth,
+    height: screenWidth * 0.9,
+  },
+  textContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 5,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 10,
+    maxWidth: 300,
+  },
+  pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#2563eb',
+    margin: 5,
+  },
+  button: {
+    backgroundColor: '#1e293b',
+    paddingVertical: 16,
+    borderRadius: 10,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
